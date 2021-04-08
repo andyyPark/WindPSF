@@ -31,12 +31,10 @@ def plot(data, nrows=1, figsize=(12, 10)):
         axs[i].set_title(title)
 
         if i == 0:
-            text = "0" * (8 - len(str(data["expinfo"]["expid"])))
-            text = "{night}/{text}{expid}".format(
-                night=data["expinfo"]["night"],
-                expid=data["expinfo"]["expid"],
-                text=text,
+            expid = "0" * (8 - len(str(data["expinfo"]["expid"]))) + str(
+                data["expinfo"]["expid"]
             )
+            text = "{night}/{expid}".format(night=data["expinfo"]["night"], expid=expid)
             axs[i].text(
                 0.02,
                 0.01,
@@ -49,4 +47,5 @@ def plot(data, nrows=1, figsize=(12, 10)):
             )
             axs[i].set_zorder(1)
 
+    plt.savefig("etc-{expid}.png".format(expid=expid))
     plt.show()
