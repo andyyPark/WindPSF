@@ -1,4 +1,5 @@
-import numpy
+import os
+import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -6,7 +7,17 @@ def plot(data, nrows=1, figsize=(12, 10)):
 
     guide_gmm = data["GUIDE"]
 
+    if len(guide_gmm.keys()) == 0:
+        print(data["expinfo"], "has etc json but no model")
+        return
+
+    if len(guide_gmm.keys()) == 1:
+        print(data["expinfo"])
+
     fig, axs = plt.subplots(nrows=nrows, ncols=len(guide_gmm.keys()), figsize=figsize)
+    axs = np.array(axs)
+    axs = axs.reshape(-1)
+
     fig.subplots_adjust(hspace=0.3, wspace=0)
 
     fiber_diam_um = 107
@@ -51,5 +62,12 @@ def plot(data, nrows=1, figsize=(12, 10)):
             )
             axs[i].set_zorder(1)
 
-    plt.savefig("etc-{expid}.png".format(expid=expid))
-    plt.show()
+    path = "./Plots/{night}/etc-{expid}.png".format(
+        night=data["expinfo"]["night"], expid=expid
+    )
+
+    if not os.path.isdir("./Plots/{night}".format(night=data["expinfo"]["night"])):
+        os.makedirs("./Plots/{night}".format(night=data["expinfo"]["night"]))
+
+    plt.savefig(path)
+    plt.close()
