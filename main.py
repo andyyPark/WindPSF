@@ -1,5 +1,6 @@
-from util import get_json, read_json, get_telemetry
+from util import get_json, read_json
 from plot import plot
+from telemetry import get_telemetry
 
 if __name__ == "__main__":
 
