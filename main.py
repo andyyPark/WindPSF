@@ -7,7 +7,6 @@ if __name__ == "__main__":
 
     path = "/global/cfs/cdirs/desi/spectro/data"
     etc_files = get_json(path)
-    etc_files = [etc_files[1]]
 
     for etc_file in etc_files:
         data = read_json(etc_file)

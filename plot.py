@@ -15,6 +15,8 @@ def plot(data, shear_data, nrows=1, figsize=(12, 10)):
     if len(guide_gmm.keys()) == 1:
         print(data["expinfo"])
 
+    norm = np.max(np.array([guide_gmm[guide]["model"].sum() for guide in guide_gmm.keys()]))
+
     fig, axs = plt.subplots(nrows=nrows, ncols=len(guide_gmm.keys()), figsize=figsize)
     axs = np.array(axs)
     axs = axs.reshape(-1)
@@ -28,7 +30,7 @@ def plot(data, shear_data, nrows=1, figsize=(12, 10)):
     for i, guide in enumerate(guide_gmm.keys()):
 
         axs[i].imshow(
-            guide_gmm[guide]["model"],
+            guide_gmm[guide]["model"] / norm,
             origin="lower",
             extent=2
             * [
