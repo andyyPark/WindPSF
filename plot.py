@@ -1,9 +1,10 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patches
 
 
-def plot(data, nrows=1, figsize=(12, 10)):
+def plot(data, shear_data, nrows=1, figsize=(12, 10)):
 
     guide_gmm = data["GUIDE"]
 
@@ -45,6 +46,12 @@ def plot(data, nrows=1, figsize=(12, 10)):
         title += "stars" if guide_gmm[guide]["nstar"] > 1 else "star"
         axs[i].set_title(title)
 
+        s = shear_data[guide]['s']
+        e1 = shear_data[guide]['e1']
+        e2 = shear_data[guide]['e2']
+
+        draw_ellipse_se1e2(axs[i], 0, 0, s, e1, e2)
+
         if i == 0:
             expid = "0" * (8 - len(str(data["expinfo"]["expid"]))) + str(
                 data["expinfo"]["expid"]
@@ -62,6 +69,7 @@ def plot(data, nrows=1, figsize=(12, 10)):
             )
             axs[i].set_zorder(1)
 
+
     path = "./Plots/{night}/etc-{expid}.png".format(
         night=data["expinfo"]["night"], expid=expid
     )
@@ -71,3 +79,17 @@ def plot(data, nrows=1, figsize=(12, 10)):
 
     plt.savefig(path)
     plt.close()
+
+def draw_ellipse_se1e2(ax, x0, y0, s, g1, g2, nsigmas=1, **ellipseopts):
+    g = np.sqrt(g1 ** 2 + g2 ** 2)
+    if g > 1:
+        raise ValueError('g1 ** 2 + g2 ** 2 > 1')
+    center = np.array([x0, y0])
+    angle = np.rad2deg(0.5 * np.arctan2(g2, g1))
+    ratio = np.sqrt((1 + g) / (1 - g))
+    width = 2 * s * ratio * nsigmas
+    height  = 2 * s / ratio * nsigmas
+    kwargs = dict(color='r', ls='-', lw=2, alpha=0.7, fill=False)
+    kwargs.update(ellipseopts)
+    ellipse = matplotlib.patches.Ellipse(center, width, height, angle, **kwargs)
+    ax.add_artist(ellipse)

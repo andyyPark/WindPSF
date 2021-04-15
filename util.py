@@ -61,5 +61,7 @@ def read_json(path):
                 "nstar": json_data["acquisition"][guide]["nstar"],
             }
 
+
+
     return data
 
