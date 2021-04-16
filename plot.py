@@ -53,13 +53,10 @@ def plot(data, shear_data, nrows=1, figsize=(12, 10)):
         axs[i].set_title(title)
 
         s = shear_data[guide]['s']
-        e1 = shear_data[guide]['e1']
-        e2 = shear_data[guide]['e2']
+        g1 = shear_data[guide]['g1']
+        g2 = shear_data[guide]['g2']
 
-        if data['expinfo']['night'] == '20210326' and data['expinfo']['expid'] == 82357:
-            print(s, e1, e2) 
-
-        draw_ellipse_se1e2(axs[i], 0, 0, s, e1, e2, data['expinfo'])
+        draw_ellipse_se1e2(axs[i], 0, 0, s, g1, g2, data['expinfo'])
 
         if i == 0:
             expid = "0" * (8 - len(str(data["expinfo"]["expid"]))) + str(
