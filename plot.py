@@ -51,7 +51,7 @@ def plot(data, shear_data, nrows=1, figsize=(12, 10)):
 
         title = "{camera}".format(camera=guide)
         if guide_gmm[guide].get('nstar', 0) != 0:
-            title += "\n{nstar}".format(nstar=guide_gmm[guide]["nstar"]) 
+            title += "\n{nstar}".format(nstar=guide_gmm[guide]["nstar"])
             title += "stars" if guide_gmm[guide]["nstar"] > 1 else "star"
 
         axs[i].set_title(title)

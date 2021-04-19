@@ -29,7 +29,7 @@ def shear_matrix(data):
         a2, b2 = compute_a2b2(Q)
         beta = compute_beta(Q, a2, b2)
         s, e1, e2 = get_se1e2(Q)
-        
+
         if a2 < 0.0 or b2 < 0.0:
             print(a2, b2)
             print(data['expinfo'], 'has invalid a or b')
@@ -41,7 +41,7 @@ def shear_matrix(data):
         g1, g2 = compute_reduced(g, beta)
 
         shear_data[guide] = {
-            "Q": Q, "a2": a2, "b2": b2, "beta": beta, 
+            "Q": Q, "a2": a2, "b2": b2, "beta": beta,
             "s": s, "e1": e1, "e2": e2, "g1": g1, "g2": g2
         }
 

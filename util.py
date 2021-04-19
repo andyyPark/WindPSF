@@ -10,7 +10,7 @@ def read_fits(path):
     """
     Read fits file and return gmm parameters
     """
-    fits_info = fitsio.read_header(path) 
+    fits_info = fitsio.read_header(path)
     gfa_names = [
         'GUIDE0', 'FOCUS1', 'GUIDE2', 'GUIDE3', 'FOCUS4',
         'GUIDE5', 'FOCUS6', 'GUIDE7', 'GUIDE8', 'FOCUS9']
