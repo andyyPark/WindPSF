@@ -1,7 +1,38 @@
 import os
 import json
 import numpy as np
+
+import fitsio
 import desietc.gmm
+
+
+def read_fits(path):
+    """
+    Read fits file and return gmm parameters
+    """
+    fits_info = fitsio.read_header(path) 
+    gfa_names = [
+        'GUIDE0', 'FOCUS1', 'GUIDE2', 'GUIDE3', 'FOCUS4',
+        'GUIDE5', 'FOCUS6', 'GUIDE7', 'GUIDE8', 'FOCUS9']
+
+    data = dict()
+    data["expinfo"] = {"night": fits_info["NIGHT"],
+                       "expid": fits_info["EXPID"],
+                       "MJD": fits_info["MJD-OBS"]}
+    data["GUIDE"] = dict()
+
+    psf_pixels = 25
+    psf_grid = np.arange(psf_pixels + 1) - psf_pixels / 2
+    GMM = desietc.gmm.GMMFit(psf_grid, psf_grid)
+
+    with fitsio.FITS(path, mode="r") as hdus:
+        for gfa in gfa_names:
+            if gfa not in hdus: continue
+
+            gmm_params = fitsio.read(path, ext=gfa+"M")
+            data["GUIDE"][gfa] = {"model": GMM.predict(gmm_params)}
+
+    return data
 
 
 def get_json(path):

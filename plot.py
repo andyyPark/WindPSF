@@ -48,8 +48,12 @@ def plot(data, shear_data, nrows=1, figsize=(12, 10)):
         axs[i].add_patch(fiber)
         axs[i].grid(False)
         axs[i].axis("off")
-        title = "{guide}\n{nstar} ".format(guide=guide, nstar=guide_gmm[guide]["nstar"])
-        title += "stars" if guide_gmm[guide]["nstar"] > 1 else "star"
+
+        title = "{camera}".format(camera=guide)
+        if guide_gmm[guide].get('nstar', 0) != 0:
+            title += "\n{nstar}".format(nstar=guide_gmm[guide]["nstar"]) 
+            title += "stars" if guide_gmm[guide]["nstar"] > 1 else "star"
+
         axs[i].set_title(title)
 
         s = shear_data[guide]['s']

@@ -33,6 +33,7 @@ def shear_matrix(data):
         if a2 < 0.0 or b2 < 0.0:
             print(a2, b2)
             print(data['expinfo'], 'has invalid a or b')
+            print(Q)
 
         a, b = np.sqrt(a2), np.sqrt(b2)
         g = (a - b) / (a + b)
