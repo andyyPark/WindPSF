@@ -118,7 +118,6 @@ def write_csv(night, expid, mjd, a, b, beta, output='./shear.csv'):
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
 
-
     with open(output, 'a', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
@@ -129,7 +128,7 @@ def write_csv(night, expid, mjd, a, b, beta, output='./shear.csv'):
                 "MJD": mjd,
                 "A": a[i],
                 "B": b[i],
-                "BETA": np.rad2deg(beta)
+                "BETA": np.rad2deg(beta[i]) % 360
             })
 
 

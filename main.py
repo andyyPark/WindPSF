@@ -10,7 +10,7 @@ if __name__ == "__main__":
     # shear_data = shear_matrix(data)
     # plot(data, shear_data)
     path = "/global/cfs/cdirs/desi/spectro/data"
-    etc_files = get_json(path)[:2]
+    etc_files = get_json(path)
 
     for etc_file in etc_files:
         data = read_json(etc_file)
