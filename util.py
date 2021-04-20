@@ -1,4 +1,5 @@
 import os
+import csv
 import json
 import numpy as np
 
@@ -67,6 +68,7 @@ def read_json(path):
     data["expinfo"] = {
         "expid": json_data["expinfo"]["expid"],
         "night": json_data["expinfo"]["night"],
+        "mjd": json_data["expinfo"]["acq_mjd"]
     }
     data["GUIDE"] = dict()
 
@@ -96,7 +98,41 @@ def read_json(path):
                 "nstar": json_data["acquisition"][guide]["nstar"],
             }
 
-
-
     return data
+
+
+def write_csv(night, expid, mjd, a, b, beta, output='./shear.csv'):
+    """
+    Write shear data
+    """
+    if len(a) != len(b):
+        raise ValueError("len(a) != len(b)")
+
+    if len(b) != len(beta):
+        raise ValueError("len(b) != len(beta)")
+
+    fieldnames = ["NIGHT", "EXPID", "MJD", "A", "B", "BETA"]
+
+    if not os.path.exists(output):
+        with open(output, 'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+
+
+    with open(output, 'a', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        for i in range(len(a)):
+            writer.writerow({
+                "NIGHT": night,
+                "EXPID": expid,
+                "MJD": mjd,
+                "A": a[i],
+                "B": b[i],
+                "BETA": np.rad2deg(beta)
+            })
+
+
+
+
 

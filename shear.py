@@ -41,7 +41,7 @@ def shear_matrix(data):
         g1, g2 = compute_reduced(g, beta)
 
         shear_data[guide] = {
-            "Q": Q, "a2": a2, "b2": b2, "beta": beta,
+            "Q": Q, "a": a, "b": b, "beta": beta,
             "s": s, "e1": e1, "e2": e2, "g1": g1, "g2": g2
         }
 
