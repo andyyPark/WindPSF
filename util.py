@@ -12,8 +12,8 @@ def read_fits(path):
     """
     fits_info = fitsio.read_header(path)
     gfa_names = [
-        'GUIDE0', 'FOCUS1', 'GUIDE2', 'GUIDE3', 'FOCUS4',
-        'GUIDE5', 'FOCUS6', 'GUIDE7', 'GUIDE8', 'FOCUS9']
+        "GUIDE0", "GUIDE2", "GUIDE3",
+        "GUIDE5", "GUIDE7", "GUIDE8"]
 
     data = dict()
     data["expinfo"] = {"night": fits_info["NIGHT"],
@@ -86,8 +86,12 @@ def read_json(path):
             gmm_params = np.array(json_data["acquisition"][guide]["gmm"])
             if len(gmm_params) == 0:
                 continue
+
+            psf = GMM.predict(gmm_params)
+            psf[psf < 0.0] = 0.0
+
             data["GUIDE"][guide] = {
-                "model": GMM.predict(gmm_params),
+                "model": psf,
                 "FWHM": json_data["acquisition"][guide]["fwhm"],
                 "nstar": json_data["acquisition"][guide]["nstar"],
             }

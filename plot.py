@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches
 
 
-def plot(data, shear_data, nrows=1, figsize=(12, 10)):
+def plot(data, shear_data=None, nrows=1, figsize=(12, 10)):
 
     guide_gmm = data["GUIDE"]
 
@@ -56,11 +56,11 @@ def plot(data, shear_data, nrows=1, figsize=(12, 10)):
 
         axs[i].set_title(title)
 
-        s = shear_data[guide]['s']
-        g1 = shear_data[guide]['g1']
-        g2 = shear_data[guide]['g2']
-
-        draw_ellipse_se1e2(axs[i], 0, 0, s, g1, g2, data['expinfo'])
+        if shear_data:
+            s = shear_data[guide]['s']
+            g1 = shear_data[guide]['g1']
+            g2 = shear_data[guide]['g2']
+            draw_ellipse_se1e2(axs[i], 0, 0, s, g1, g2, data['expinfo'])
 
         if i == 0:
             expid = "0" * (8 - len(str(data["expinfo"]["expid"]))) + str(
@@ -88,6 +88,7 @@ def plot(data, shear_data, nrows=1, figsize=(12, 10)):
         os.makedirs("./Plots/{night}".format(night=data["expinfo"]["night"]))
 
     plt.savefig(path)
+    plt.show()
     plt.close()
 
 def draw_ellipse_se1e2(ax, x0, y0, s, g1, g2, info, nsigmas=1, **ellipseopts):
