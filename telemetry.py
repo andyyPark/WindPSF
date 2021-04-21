@@ -1,25 +1,25 @@
 import desietc.db
 
-def get_telemetry():
+def get_db():
+    """
+    Query online telemetry DB for wind speed, wind direction,
+    and telescope position
+    """
+    db = desietc.db.DB()
+    env_tower = desietc.db.NightTelemetry(db, 'environmentmonitor_tower',
+                                          'wind_speed, wind_direction, gust')
+    env_telescope = desietc.db.NightTelemetry(db, 'environmentmonitor_telescope',
+                                              'wind_gust, wind_shake')
+    tcs_info = desietc.db.NightTelemetry(db, 'tcs_info', 'dome_az')
+    env_dome = desietc.db.NightTelemetry(db, 'environmentmonitor_dome',
+                                         'shutter_upper, shutter_lower')
+
+    return env_tower, env_telescope, tcs_info, env_dome
+
+def get_telemetry(table, nigjt, mjd):
     """
     Query online telemetry DB for wind speed, direction, and
     telescope position
-    """ 
-    telescope = query("""
-                SELECT DATE(T.time_recorded), AVG(T.wind_speed)
-                    AS wind_speed, AVG(T.wind_direction) AS wind_direction
-                FROM telemetry.environmentmonitor_tower AS T
-                WHERE T.time_recorded > '20210319'
-                GROUP BY DATE(T.time_recorded)
-                ORDER BY DATE(T.time_recorded) DESC
-    """, maxrows=50)
-    return telescope
-
-
-def query(sql, maxrows=10, dates=None):
     """
-    Individual query
-    """
-    db = desietc.db.DB()
-    df = db.query(sql, maxrows, dates)
-    return df
+    return table(night, MJD=mjd)
+
