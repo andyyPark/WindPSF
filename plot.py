@@ -12,9 +12,6 @@ def plot(data, shear_data=None, nrows=1, figsize=(12, 10)):
         print(data["expinfo"], "has etc json but no model")
         return
 
-    if len(guide_gmm.keys()) == 1:
-        print(data["expinfo"])
-
     model_sum = {guide: guide_gmm[guide]["model"].sum() for guide in guide_gmm.keys()}
     model_max = np.median([guide_gmm[guide]["model"].max() / model_sum[guide] for guide in guide_gmm.keys()])
     vmin, vmax = -0.1 * model_max, 1.0 * model_max
@@ -51,7 +48,7 @@ def plot(data, shear_data=None, nrows=1, figsize=(12, 10)):
 
         title = "{camera}".format(camera=guide)
         if guide_gmm[guide].get('nstar', 0) != 0:
-            title += "\n{nstar}".format(nstar=guide_gmm[guide]["nstar"])
+            title += "\n{nstar} ".format(nstar=guide_gmm[guide]["nstar"])
             title += "stars" if guide_gmm[guide]["nstar"] > 1 else "star"
 
         axs[i].set_title(title)
@@ -60,7 +57,7 @@ def plot(data, shear_data=None, nrows=1, figsize=(12, 10)):
             s = shear_data[guide]['s']
             g1 = shear_data[guide]['g1']
             g2 = shear_data[guide]['g2']
-            draw_ellipse_se1e2(axs[i], 0, 0, s, g1, g2, data['expinfo'])
+            draw_ellipse_se1e2(axs[i], 0, 0, s, g1, g2)
 
         if i == 0:
             expid = "0" * (8 - len(str(data["expinfo"]["expid"]))) + str(
@@ -91,11 +88,9 @@ def plot(data, shear_data=None, nrows=1, figsize=(12, 10)):
     plt.show()
     plt.close()
 
-def draw_ellipse_se1e2(ax, x0, y0, s, g1, g2, info, nsigmas=1, **ellipseopts):
+def draw_ellipse_se1e2(ax, x0, y0, s, g1, g2, nsigmas=1, **ellipseopts):
     g = np.sqrt(g1 ** 2 + g2 ** 2)
     if g > 1:
-        print(info, 'failed')
-        print(g1 ** 2 + g2 ** 2)
         raise ValueError('g1 ** 2 + g2 ** 2 > 1')
     center = np.array([x0, y0])
     angle = np.rad2deg(0.5 * np.arctan2(g2, g1))

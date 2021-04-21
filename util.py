@@ -31,7 +31,9 @@ def read_fits(path):
             if gfa not in hdus: continue
 
             gmm_params = fitsio.read(path, ext=gfa+"M")
-            data["GUIDE"][gfa] = {"model": GMM.predict(gmm_params)}
+            psf = GMM.predict(gmm_params)
+            psf[psf < 0.0] = 0.0
+            data["GUIDE"][gfa] = {"model": psf}
 
     return data
 
@@ -64,6 +66,14 @@ def read_json(path):
     with open(path) as f:
         json_data = json.load(f)
 
+
+    # Skip expid that has 0 gmm
+    empty_gmm = [len(json_data["acquisition"][camera].get("gmm", []))
+                   for camera in json_data["acquisition"].keys()]
+
+    if sum(empty_gmm) == 0 or "acq_mjd" not in json_data["expinfo"]:
+        return None
+
     data = dict()
     data["expinfo"] = {
         "expid": json_data["expinfo"]["expid"],
@@ -85,6 +95,7 @@ def read_json(path):
             # Check bad psf models
             if json_data["acquisition"][guide]["nll"] > nll_threshold:
                 continue
+
             gmm_params = np.array(json_data["acquisition"][guide]["gmm"])
             if len(gmm_params) == 0:
                 continue
@@ -111,7 +122,14 @@ def write_csv(night, expid, mjd, a, b, beta, output='./shear.csv'):
     if len(b) != len(beta):
         raise ValueError("len(b) != len(beta)")
 
-    fieldnames = ["NIGHT", "EXPID", "MJD", "A", "B", "BETA"]
+    gfa_names = [
+        "GUIDE0", "GUIDE2", "GUIDE3",
+        "GUIDE5", "GUIDE7", "GUIDE8"
+    ]
+    fieldnames = ["NIGHT", "EXPID", "MJD"]
+
+    for camera in gfa_names:
+        fieldnames.extend(["A"+camera[-1], "B"+camera[-1], "BETA"+camera[-1]])
 
     if not os.path.exists(output):
         with open(output, 'w', newline='') as csvfile:
@@ -121,15 +139,14 @@ def write_csv(night, expid, mjd, a, b, beta, output='./shear.csv'):
     with open(output, 'a', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
-        for i in range(len(a)):
-            writer.writerow({
-                "NIGHT": night,
-                "EXPID": expid,
-                "MJD": mjd,
-                "A": a[i],
-                "B": b[i],
-                "BETA": np.rad2deg(beta[i]) % 360
-            })
+        row = {"NIGHT": night, "EXPID": expid, "MJD": mjd}
+
+        for camera in gfa_names:
+            row["A"+camera[-1]] = a.get(camera, 0)
+            row["B"+camera[-1]] = b.get(camera, 0)
+            row["BETA"+camera[-1]] = np.rad2deg(beta.get(camera, 0))
+
+        writer.writerow(row)
 
 
 

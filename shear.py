@@ -1,17 +1,17 @@
 import numpy as np
 
 
-def shear_matrix(data):
+def shear_matrix(night, expid, mjd, data):
     """
     Computes the second moment matrix
     """
     profiles = data['GUIDE']
     shear_data = dict()
 
-    for guide in profiles:
+    for camera in profiles:
         Q = np.zeros((2, 2))
 
-        profile = profiles[guide]['model']
+        profile = profiles[camera]['model']
         center = profile.shape[0] / 2
         y, x = np.indices((profile.shape))
 
@@ -30,17 +30,13 @@ def shear_matrix(data):
         beta = compute_beta(Q, a2, b2)
         s, e1, e2 = get_se1e2(Q)
 
-        if a2 < 0.0 or b2 < 0.0:
-            print(a2, b2)
-            print(data['expinfo'], 'has invalid a or b')
-            print(Q)
-
         a, b = np.sqrt(a2), np.sqrt(b2)
         g = (a - b) / (a + b)
 
         g1, g2 = compute_reduced(g, beta)
 
-        shear_data[guide] = {
+        shear_data[camera] = {
+            "night": night, "expid": expid, "mjd": mjd,
             "Q": Q, "a": a, "b": b, "beta": beta,
             "s": s, "e1": e1, "e2": e2, "g1": g1, "g2": g2
         }
@@ -72,12 +68,13 @@ def compute_a2b2(Q):
     a2t = 0.5 * (Q11 + Q22 + np.sqrt((Q11 - Q22) ** 2 + 4 * Q12 ** 2))
     b2t = 0.5 * (Q11 + Q22 - np.sqrt((Q11 - Q22) ** 2 + 4 * Q12 ** 2))
     a2, b2 = max(a2t, b2t), min(a2t, b2t)
+    assert a2 >= b2
 
     return a2, b2
 
 def compute_beta(Q, a2, b2):
     """
-    Given the second moment matrix, a^2, and b^2 
+    Given the second moment matrix, a^2, and b^2
     compute the angle between the axis with length a
     and e_1
     """
@@ -90,7 +87,7 @@ def compute_reduced(g, beta):
     """
     Compute reduced shear components
     """
-    g1 = g * np.cos(2 * beta)
-    g2 = g * np.sin(2 * beta)
+    g1 = g * np.cos(2. * beta)
+    g2 = g * np.sin(2. * beta)
 
     return g1, g2
