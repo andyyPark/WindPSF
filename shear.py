@@ -12,6 +12,7 @@ def shear_matrix(night, expid, mjd, data):
         Q = np.zeros((2, 2))
 
         profile = profiles[camera]['model']
+        if profile.sum() == 0: continue
         center = profile.shape[0] / 2
         y, x = np.indices((profile.shape))
 
@@ -32,12 +33,13 @@ def shear_matrix(night, expid, mjd, data):
 
         a, b = np.sqrt(a2), np.sqrt(b2)
         g = (a - b) / (a + b)
+        q = b / a
 
         g1, g2 = compute_reduced(g, beta)
 
         shear_data[camera] = {
             "night": night, "expid": expid, "mjd": mjd,
-            "Q": Q, "a": a, "b": b, "beta": beta,
+            "Q": Q, "a": a, "b": b, "beta": beta, "q": q,
             "s": s, "e1": e1, "e2": e2, "g1": g1, "g2": g2
         }
 

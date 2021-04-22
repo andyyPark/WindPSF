@@ -27,15 +27,36 @@ def read_fits(path):
     GMM = desietc.gmm.GMMFit(psf_grid, psf_grid)
 
     with fitsio.FITS(path, mode="r") as hdus:
-        for gfa in gfa_names:
-            if gfa not in hdus: continue
+        for camera in gfa_names:
+            if camera not in hdus: continue
+            if camera+"M" not in hdus: continue
 
-            gmm_params = fitsio.read(path, ext=gfa+"M")
+            gmm_params = fitsio.read(path, ext=camera+"M")
             psf = GMM.predict(gmm_params)
             psf[psf < 0.0] = 0.0
-            data["GUIDE"][gfa] = {"model": psf}
+            data["GUIDE"][camera] = {"model": psf}
 
     return data
+
+def get_fits(path):
+    """
+    Get fits files from path
+    """
+    files = [
+        os.path.join(path, file)
+        for file in os.listdir(path)
+        if file <= "20210123" and file >= "20201214"
+    ]  # Make it robust using regex
+
+    fits_files = []
+    for file in files:
+        for expid in os.listdir(file):
+            if len(expid) != 8: continue
+            etc = f"gfaetc_{expid}.fits"
+            if etc in os.listdir(os.path.join(file, expid)):
+                fits_files.append(os.path.join(file, expid, etc))
+
+    return fits_files
 
 
 def get_json(path):
