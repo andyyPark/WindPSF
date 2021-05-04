@@ -34,6 +34,7 @@ def read_fits(path):
             gmm_params = fitsio.read(path, ext=camera+"M")
             psf = GMM.predict(gmm_params)
             psf[psf < 0.0] = 0.0
+            if psf.sum() == 0.0: continue
             data["GUIDE"][camera] = {"model": psf}
 
     return data
@@ -45,7 +46,7 @@ def get_fits(path):
     files = [
         os.path.join(path, file)
         for file in os.listdir(path)
-        if file <= "20210123" and file >= "20201214"
+        if file >= "20201214"
     ]  # Make it robust using regex
 
     fits_files = []
@@ -133,7 +134,7 @@ def read_json(path):
     return data
 
 
-def write_csv(night, expid, mjd, a, b, beta, output='./shear.csv'):
+def write_csv(night, expid, mjd, a, b, beta, wind_speed, wind_direction, output='./shear_t.csv'):
     """
     Write shear data
     """
@@ -152,6 +153,8 @@ def write_csv(night, expid, mjd, a, b, beta, output='./shear.csv'):
     for camera in gfa_names:
         fieldnames.extend(["A"+camera[-1], "B"+camera[-1], "BETA"+camera[-1]])
 
+    fieldnames += ["wind_speed", "wind_direction"]
+
     if not os.path.exists(output):
         with open(output, 'w', newline='') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -166,6 +169,9 @@ def write_csv(night, expid, mjd, a, b, beta, output='./shear.csv'):
             row["A"+camera[-1]] = a.get(camera, 0)
             row["B"+camera[-1]] = b.get(camera, 0)
             row["BETA"+camera[-1]] = np.rad2deg(beta.get(camera, 0))
+
+        row["wind_speed"] = wind_speed[0]
+        row["wind_direction"] = wind_direction[0]
 
         writer.writerow(row)
 

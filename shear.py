@@ -16,15 +16,21 @@ def shear_matrix(night, expid, mjd, data):
         center = profile.shape[0] / 2
         y, x = np.indices((profile.shape))
 
-        rx = (x - center) ** 2
-        ry = (y - center) ** 2
+        rx = (x - center)
+        ry = (y - center)
         rxy = (x - center) * (y - center)
-
+        
         denom = np.sum(profile)
+        
+        mux = np.sum(rx * profile) / denom
+        muy = np.sum(ry * profile) / denom
+        
+        rx -= mux
+        ry -= muy
 
-        Q[0, 0] = np.sum(rx.ravel() * profile.ravel()) / denom
-        Q[1, 1] = np.sum(ry.ravel() * profile.ravel()) / denom
-        Q[0, 1] = np.sum(rxy.ravel() * profile.ravel()) / denom
+        Q[0, 0] = np.sum(rx ** 2 * profile) / denom
+        Q[1, 1] = np.sum(ry ** 2 * profile) / denom
+        Q[0, 1] = np.sum(rx * ry * profile) / denom
         Q[1, 0] = Q[0, 1]
 
         a2, b2 = compute_a2b2(Q)
@@ -67,8 +73,11 @@ def compute_a2b2(Q):
     Q11 = Q[0, 0]
     Q22 = Q[1, 1]
     Q12 = Q[0, 1]
-    a2t = 0.5 * (Q11 + Q22 + np.sqrt((Q11 - Q22) ** 2 + 4 * Q12 ** 2))
-    b2t = 0.5 * (Q11 + Q22 - np.sqrt((Q11 - Q22) ** 2 + 4 * Q12 ** 2))
+    Q1122 = Q11 + Q22
+    disc = np.sqrt((Q11 - Q22) ** 2 + 4 * Q12 ** 2)
+    
+    a2t = 0.5 * (Q1122 + disc)
+    b2t = 0.5 * (Q1122 - disc)
     a2, b2 = max(a2t, b2t), min(a2t, b2t)
     assert a2 >= b2
 
@@ -80,8 +89,13 @@ def compute_beta(Q, a2, b2):
     compute the angle between the axis with length a
     and e_1
     """
+    U, _, _ = np.linalg.svd(Q)
     Q12 = Q[0, 1]
-    beta = 0.5 * np.arcsin(2 * Q12 / (a2 - b2))
+    Q11 = Q[0, 0]
+    Q22 = Q[1, 1]
+    #beta = 0.5 * np.arcsin(2 * Q12 / (a2 - b2))
+    #beta = 0.5 * np.arctan(2 * Q12 / (Q11 - Q22))
+    beta = np.arctan2(U[1, 0], U[0, 0])
 
     return beta
 
